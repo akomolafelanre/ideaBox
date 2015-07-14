@@ -1,0 +1,14 @@
+<html>
+	<head>
+		{% if title %}
+		<title>{{ title }} - ideaBox</title>
+		{% else %}
+		<title>Welcome to ideaBox</title>
+		{% endif %}
+	</head>
+	<body>
+		<div>IdeaBox: <a href = "/index">Home</a></div>
+		<hr>
+		{% block content %} {% endblock %}
+	</body>
+</html>
