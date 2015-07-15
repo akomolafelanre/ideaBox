@@ -20,7 +20,7 @@
             <div class="control-group{% if form.description.errors %} error{% endif %}">
                 <label class="control-label" for="idea">Description:</label>
                 <div class="controls">
-                    {{ form.description(size=30, maxlength=500) }}
+                    {{ form.description(size=30, maxlength=1000) }}
                     {% for error in form.description.errors %}
                         <span class="help-inline">[{{ error }}]</span><br>
                     {% endfor %}

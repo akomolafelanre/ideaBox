@@ -1,0 +1,6 @@
+version:2
+handle:50ee0f762b1011e5b65b00163e1d057e
+secret:voUxueWAedNOEY2mXeKyo9bJkZI=
+issued:1436978479
+lifetime:86398
+assoc_type:HMAC-SHA1

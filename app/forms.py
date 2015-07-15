@@ -28,8 +28,8 @@ class EditForm(Form):
 
 class IdeaForm(Form):
 	title = StringField('title', validators = [DataRequired()])
-	description = TextAreaField('description', validators = [DataRequired(), Length(min=0, max= 500)])
-	rank = IntegerField('rank', validators = [DataRequired(), NumberRange(min = 0, max = 5, message = "Out of range")])
+	description = TextAreaField('description', validators = [DataRequired(), Length(min=0, max= 1000)])
+	rank = IntegerField('rank', validators = [DataRequired(), NumberRange(min = 0, max = 100, message = "Out of range")])
 
 class SearchForm(Form):
 	search = StringField('search', validators = [DataRequired()])

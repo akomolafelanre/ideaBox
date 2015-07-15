@@ -115,6 +115,49 @@ def edit():
         form.about_me.data = g.user.about_me
     return render_template('edit.html', form=form)
 
+@app.route('/delete/<int:id>')
+@login_required
+def delete(id):
+    idea = Idea.query.get(id)
+    if idea is None:
+        flash('Idea not found.')
+        return redirect(url_for('index'))
+    if idea.author.id != g.user.id:
+        flash('You cannot delete this idea.')
+        return redirect(url_for('index'))
+    db.session.delete(idea)
+    db.session.commit()
+    flash('Your idea has been deleted.')
+    return redirect(url_for('index'))
+
+@app.route('/editpost/<int:id>')
+@login_required
+def editidea(id):
+    idea = Idea.query.get(id)
+    if idea is None:
+        flash('Idea not found.')
+        return redirect(url_for('index'))
+    if idea.author.id != g.user.id:
+        flash('You cannot edit this idea.')
+        return redirect(url_for('index'))
+    idea.title += "plus some extra"
+    idea.timestamp= datetime.utcnow()
+    db.session.commit()
+    flash('Your idea has been edited.')
+    return redirect(url_for('index'))
+
+@app.route('/like/<int:id>')
+@login_required
+def like(id):
+    idea = Idea.query.get(id)
+    if idea is None:
+        flash('Idea not found.')
+        return redirect(url_for('index'))
+    idea.rank += 1
+    db.session.commit()
+    flash('Thanks for liking my idea. Lets make it work!!')
+    return redirect(url_for('index'))
+
 @app.route('/search', methods = ['POST'])
 @login_required
 def search():
