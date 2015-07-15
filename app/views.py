@@ -1,9 +1,10 @@
 from flask import render_template, flash, redirect, session, url_for, request, g
 from flask.ext.login import login_user, logout_user, current_user, login_required
-from app import app, db, lm, oid
-from .forms import LoginForm, EditForm
-from .models import User
 from datetime import datetime
+from app import app, db, lm, oid
+from .forms import LoginForm, EditForm, IdeaForm
+from .models import User, Idea
+
 
 @lm.user_loader
 def load_user(id):
@@ -17,28 +18,31 @@ def before_request():
 		db.session.add(g.user)
 		db.session.commit()
 
-@app.route('/')
-@app.route('/index')
+@app.errorhandler(404)
+def not_found_error(error):
+	return render_template('404.html'), 404
+
+@app.errorhandler(500)
+def internal_error(error):
+	db.session.rollback()
+	return render_template('500.html'), 500
+
+@app.route('/', methods = ['GET', 'POST'])
+@app.route('/index', methods = ['GET', 'POST'])
 @login_required
 def index():
-	user = g.user
-	ideas = [
-		{
-			'author': {'nickname': 'John'},
-			'title' : 'Know how',
-			'description' : 'Beautiful day in Nigeria',
-			'rank' : 4
-		},
-		{
-			'author': {'nickname': 'Susan'},
-			'title' : 'Second idea',
-			'description' : 'The Avengers movie was so cool',
-			'rank' : 4
-		}
-	]
+	form = IdeaForm()
+	if form.validate_on_submit():
+		idea = Idea(title = form.title.data, description = form.description.data, rank = int(form.rank.data), timestamp= datetime.utcnow(), author = g.user)
+		db.session.add(idea)
+		db.session.commit()
+		flash('Your idea has been captured')
+		return redirect(url_for('index'))
+	ideas =	g.user.user_ideas().all()
+
 	return render_template('index.html', 
 							title = 'Home', 
-							user = user,
+							form = form,
 							ideas = ideas)
 
 @app.route('/login', methods= ['GET', 'POST'])
@@ -54,7 +58,6 @@ def login():
 							title = 'Sign In',
 							form = form,
 							providers = app.config['OPENID_PROVIDERS'])
-
 
 @oid.after_login
 def after_login(resp):
@@ -85,27 +88,14 @@ def logout():
 @app.route('/user/<nickname>')
 @login_required
 def user(nickname):
-    user = User.query.filter_by(nickname=nickname).first()
-    if user == None:
-        flash('User %s not found.' % nickname)
-        return redirect(url_for('index'))
-    ideas = [
-        {
-			'author': user,
-			'title' : 'Test Idea #1',
-			'description' : 'Beautiful day in Nigeria',
-			'rank' : 4
-		},
-		{
-			'author': user,
-			'title' : 'Test Idea #2',
-			'description' : 'The Avengers movie was so cool',
-			'rank' : 4
-		}
-    ]
-    return render_template('user.html',
-                           user=user,
-                           ideas=ideas)
+	user = User.query.filter_by(nickname=nickname).first()
+	#user = User.query.filter_by(nickname=nickname).first()
+	if user is None:
+		flash('User %s not found.' % (nickname))
+		return redirect(url_for('index'))
+	ideas = user.ideas
+	
+	return render_template('user.html', user=user, ideas=ideas)	
 
 @app.route('/edit', methods=['GET', 'POST'])
 @login_required
@@ -123,11 +113,3 @@ def edit():
         form.about_me.data = g.user.about_me
     return render_template('edit.html', form=form)
 
-@app.errorhandler(404)
-def not_found_error(error):
-	return render_template('404.html'), 404
-
-@app.errorhandler(500)
-def internal_error(error):
-	db.session.rollback()
-	return render_template('500.html'), 500

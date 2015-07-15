@@ -9,6 +9,7 @@ class User(db.Model):
 	about_me = db.Column(db.String(140))
 	last_seen = db.Column(db.DateTime)
 
+
 	def is_authenticated(self):
 		return True
 
@@ -23,6 +24,9 @@ class User(db.Model):
 			return unicode(self.id)
 		except NameError:
 			return str(self.id)
+
+	def user_ideas(self):
+		return Idea.query.filter(id > 0)
 
 	def avatar(self, size):
 		return 'http://www.gravatar.com/avatar/%s?d=mm&s=%d' %(md5(self.email.encode('utf-8')).hexdigest(), size)
@@ -45,12 +49,11 @@ class User(db.Model):
 class Idea(db.Model):
 	id = db.Column(db.Integer, primary_key = True)
 	title = db.Column(db.String(120), index = True, unique = True)
-	description = db.Column(db.String(200))
+	description = db.Column(db.String(140))
 	rank = db.Column(db.Integer)
 	timestamp = db.Column(db.DateTime)
 	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
 	def __repr__(self):
 		return '<Idea %r>' % (self.description)
-
 

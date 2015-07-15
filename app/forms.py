@@ -1,6 +1,6 @@
 from flask.ext.wtf import Form
-from wtforms import StringField, BooleanField, TextAreaField
-from wtforms.validators import DataRequired, Length
+from wtforms import StringField, BooleanField, TextAreaField, IntegerField, DecimalField
+from wtforms.validators import DataRequired, Length, NumberRange
 from app.models import User
 
 class LoginForm(Form):
@@ -9,7 +9,7 @@ class LoginForm(Form):
 
 class EditForm(Form):
 	nickname = StringField('nickname', validators = [DataRequired()])
-	about_me = TextAreaField('about_me', validators = [Length(min=0, max= 140)])
+	about_me = TextAreaField('about_me', validators = [Length(min=0, max= 500)])
 
 	def __init__(self, original_nickname, *args, **kwargs):
 		Form.__init__(self, *args, **kwargs)
@@ -25,3 +25,8 @@ class EditForm(Form):
 			self.nickname.errors.append('This nickname is already in use. Please choose another one.')
 			return False
 		return True
+
+class IdeaForm(Form):
+	title = StringField('title', validators = [DataRequired()])
+	description = TextAreaField('description', validators = [DataRequired(), Length(min=0, max= 500)])
+	rank = IntegerField('rank', validators = [DataRequired(), NumberRange(min = 0, max = 5, message = "Out of range")])

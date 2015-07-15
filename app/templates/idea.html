@@ -1,7 +1,11 @@
 <div>
-	<img src="{{ idea.author.avatar(50) }}">
-	<p>{{ idea.author.nickname }} has: <b>{{ idea.title }} </b></p>
-	<p>{{ idea.description }} </p>
-	<p>{{ idea.rank }} </p>
-	<br>
+	<table>
+		<tr>
+			<td rowspan = 4><img src="{{ idea.author.avatar(50) }}"></td>
+		</tr>
+		<tr><td><p>{{ idea.author.nickname }} thinks he has: <b>{{ idea.title }} </b></p></td> </tr>
+		<tr><td><p>{{ idea.description }} </p></td></tr>
+		<tr><td><p>{{ idea.rank }} </p></td></tr>
+		<br>
+	</table>
 </div>
