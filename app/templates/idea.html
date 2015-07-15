@@ -5,7 +5,7 @@
         	<div>
 	           <p><strong>{{ idea.title }}</strong></p>
 	           <p>{{ idea.description }}</p>
-	           <p><strong>Rank: {{ idea.rank }}</strong><a href="{{ url_for('like', id=idea.id) }}">{{ _('Like') }}</a>
+	           <p><strong>Rank: {{ idea.rank }}</strong> &nbsp; &nbsp;<a href="{{ url_for('like', id=idea.id) }}">{{ _('Like') }}</a>
 						{% if idea.author.id == g.user.id %}
 						|  <a href="{{ url_for('editidea', id=idea.id) }}">{{ _('Edit Idea') }}</a>
 						|  <a href="{{ url_for('delete', id=idea.id) }}">{{ _('Delete') }}</a>
