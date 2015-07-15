@@ -2,9 +2,9 @@
 	<tr>
         <td width="70px"><a href="{{ url_for('user', nickname=idea.author.nickname) }}"><img src="{{ idea.author.avatar(70) }}" /></a></td>
         <td>
-            <p><a href="{{ url_for('user', nickname=idea.author.nickname) }}">{{ idea.author.nickname }}</a> on {{ idea.timestamp }} thought: </p>
+            <p><a href="{{ url_for('user', nickname=idea.author.nickname) }}">{{ idea.author.nickname }}</a> on {{ momentjs(idea.timestamp).fromNow() }} thought: </p>
             <p><strong>{{ idea.title }}</strong></p>
-            <p><strong>{{ idea.description }}</strong></p>
+            <p>{{ idea.description }}</p>
             <p><strong>{{ idea.rank }}</strong></p>
         </td>
     </tr>

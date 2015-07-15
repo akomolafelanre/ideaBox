@@ -2,12 +2,12 @@
 {% extends "base.html" %}
 
 {% block content %}
-	<h1>Hi, {{ g.user.nickname }}!</h1>
+	<h3>Hi, {{ g.user.nickname }}!</h3>
 	{% include 'flash.html' %}
 	<div class ="well">
 		<form class = "form-vertical" action="" method="post" name="save">
 			{{ form.hidden_tag() }}
-			<label class="control-label" for="idea">Got a new Idea?</label>
+			<h4>Got a new Idea?</h4>
 	      	<div class="control-group{% if form.title.errors %} error{% endif %}">
                 <label class="control-label" for="idea">Title:</label>
                 <div class="controls">
