@@ -5,6 +5,8 @@ from app import app, db, lm, oid
 from .forms import LoginForm, EditForm, IdeaForm, SearchForm
 from .models import User, Idea
 from config import MAX_SEARCH_RESULTS
+from flask.ext.sqlalchemy import get_debug_queries
+from config import DATABASE_QUERY_TIMEOUT
 
 
 @lm.user_loader
@@ -34,13 +36,8 @@ def internal_error(error):
 @login_required
 def index():
 	form = IdeaForm()
-	if form.validate_on_submit():
-		idea = Idea(title = form.title.data, description = form.description.data, rank = int(form.rank.data), timestamp= datetime.utcnow(), author = g.user)
-		db.session.add(idea)
-		db.session.commit()
-		flash('Your idea has been captured')
-		return redirect(url_for('index'))
-	ideas =	g.user.user_ideas().all()
+	
+	ideas =	g.user.user_ideas().order_by(Idea.timestamp.desc()).all()
 
 	return render_template('index.html', 
 							title = 'Home', 
@@ -95,7 +92,7 @@ def user(nickname):
 	if user is None:
 		flash('User %s not found.' % (nickname))
 		return redirect(url_for('index'))
-	ideas = user.ideas
+	ideas = user.ideas.order_by(Idea.timestamp.desc())
 	
 	return render_template('user.html', user=user, ideas=ideas)	
 
@@ -130,21 +127,31 @@ def delete(id):
     flash('Your idea has been deleted.')
     return redirect(url_for('index'))
 
-@app.route('/editpost/<int:id>')
+@app.route('/editidea/<int:id>', methods=['GET', 'POST'])
 @login_required
 def editidea(id):
-    idea = Idea.query.get(id)
-    if idea is None:
-        flash('Idea not found.')
-        return redirect(url_for('index'))
-    if idea.author.id != g.user.id:
-        flash('You cannot edit this idea.')
-        return redirect(url_for('index'))
-    idea.title += "plus some extra"
-    idea.timestamp= datetime.utcnow()
-    db.session.commit()
-    flash('Your idea has been edited.')
-    return redirect(url_for('index'))
+	form = IdeaForm()
+	idea = Idea.query.get(id)
+	if idea is None:
+		flash('Idea not found.')
+		return redirect(url_for('index'))
+	if idea.author.id != g.user.id:
+		flash('You cannot edit this idea.')
+		return redirect(url_for('newidea'))
+	form.title.data = idea.title
+	form.description.data = idea.description
+	if form.validate_on_submit():
+		a = form.title.data
+		b = form.description.data
+		c = idea.rank
+		idea.title = str(a)
+		idea.description = str(b)
+		idea.rank = c
+		idea.timestamp= datetime.utcnow()
+		db.session.commit()
+		flash('You have succesfully modified your idea.')
+		return redirect(url_for('newidea'))
+	return render_template('newidea.html', form=form)
 
 @app.route('/like/<int:id>')
 @login_required
@@ -170,3 +177,22 @@ def search():
 def search_results(query):
 	results = Idea.query.whoosh_search(query, MAX_SEARCH_RESULTS).all()
 	return render_template('search_results.html', query = query, results = results)
+
+@app.after_request
+def after_request(response):
+    for query in get_debug_queries():
+        if query.duration >= DATABASE_QUERY_TIMEOUT:
+            app.logger.warning("SLOW QUERY: %s\nParameters: %s\nDuration: %fs\nContext: %s\n" % (query.statement, query.parameters, query.duration, query.context))
+    return response
+
+@app.route('/newidea', methods=['GET', 'POST'])
+@login_required
+def newidea():
+    form = IdeaForm()
+    if form.validate_on_submit():
+        idea = Idea(title = form.title.data, description = form.description.data, rank = 0, timestamp= datetime.utcnow(), author = g.user)
+        db.session.add(idea)
+        db.session.commit()
+        flash('Your changes have been saved.')
+        return redirect(url_for('newidea'))
+    return render_template('newidea.html', form=form)

@@ -5,6 +5,9 @@ import unittest
 from config import basedir
 from app import app, db
 from app.models import User
+from coverage import coverage
+cov = coverage(branch = True, omit = ['flask/*', 'tests.py'])
+cov.start()
 
 class TestCase(unittest.TestCase):
     def setUp(self):
@@ -37,5 +40,30 @@ class TestCase(unittest.TestCase):
         assert nickname2 != 'john'
         assert nickname2 != nickname
 
+    
+    def __repr__(self):  # pragma: no cover
+        return '<User %r>' % (self.nickname)
+
+    def test_make_unique_nickname(self):
+        # create a user and write it to the database
+        u = User(nickname='john', email='john@example.com')
+        db.session.add(u)
+        db.session.commit()
+        nickname = User.make_unique_nickname('susan')
+        assert nickname == 'susan'
+        nickname = User.make_unique_nickname('john')
+        assert nickname != 'john'
+
+
 if __name__ == '__main__':
-    unittest.main()
+    try:
+        unittest.main()
+    except:
+        pass
+    cov.stop()
+    cov.save()
+    print "\n\nCoverage Report:\n"
+    cov.report()
+    print "HTML version: " + os.path.join(basedir, "tmp/coverage/index.html")
+    cov.html_report(directory='tmp/coverage')
+    cov.erase()

@@ -37,7 +37,8 @@ class User(db.Model):
 		return Idea.query.filter(id > 0)
 
 	def avatar(self, size):
-		return 'http://www.gravatar.com/avatar/%s?d=mm&s=%d' %(md5(self.email.encode('utf-8')).hexdigest(), size)
+		return '/static/img/%s.jpg' %(self.id)
+		#return 'http://www.gravatar.com/avatar/%s?d=mm&s=%d' %(md5(self.email.encode('utf-8')).hexdigest(), size)
 
 	@staticmethod
 	def make_unique_nickname(nickname):

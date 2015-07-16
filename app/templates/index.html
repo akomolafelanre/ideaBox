@@ -2,47 +2,18 @@
 {% extends "base.html" %}
 
 {% block content %}
-	<h3>Hi, {{ g.user.nickname }}!</h3>
+	<div class="control-group">
+
+        <div class="controls">
+        	<h3>Hi, {{ g.user.nickname }}!</h3>
+            <p><a href="{{ url_for('newidea') }}">Add Idea</a></p>
+    	</div>
+    </div>
 	{% include 'flash.html' %}
-	<div class ="well">
-		<form class = "form-vertical" action="" method="post" name="save">
-			{{ form.hidden_tag() }}
-			<h4>Got a new Idea?</h4>
-	      	<div class="control-group{% if form.title.errors %} error{% endif %}">
-                <label class="control-label" for="idea">Title:</label>
-                <div class="controls">
-                    {{ form.title(size=30, maxlength=120) }}
-                    {% for error in form.title.errors %}
-                        <span class="help-inline">[{{ error }}]</span><br>
-                    {% endfor %}
-                </div>
-            </div>
-            <div class="control-group{% if form.description.errors %} error{% endif %}">
-                <label class="control-label" for="idea">Description:</label>
-                <div class="controls">
-                    {{ form.description(size=30, maxlength=1000) }}
-                    {% for error in form.description.errors %}
-                        <span class="help-inline">[{{ error }}]</span><br>
-                    {% endfor %}
-                </div>
-            </div>
-            <div class="control-group{% if form.rank.errors %} error{% endif %}">
-                <label class="control-label" for="idea">What will you rank this idea?</label>
-                <div class="controls">
-                    {{ form.rank(size=20, maxlength=10) }}
-                    {% for error in form.rank.errors %}
-                        <span class="help-inline">[{{ error }}]</span><br>
-                    {% endfor %}
-                </div>
-            </div>   
-            <div class="control-group">
-              	<div class="controls">
-                    <input class="btn btn-primary" type="submit" value="Save">
-                </div>
-            </div>
-  		</form>
-	</div>
-	{% for idea in ideas %}
+	<div class= "well">
+		{% for idea in ideas %}
 		{% include 'idea.html' %}
-	{% endfor %}
+		{% endfor %}
+	</div>
+	
 {% endblock %}
